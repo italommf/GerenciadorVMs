@@ -63,7 +63,7 @@ class ConexaoAreaDeTrabalhoRemota:
     def autenticar_na_vm(self, process_id, endereco, nome_usuario, senha, usar_todos_os_monitores = False):
 
         def _identificar_janela():
-            vm = automation.WindowControl(searchDepth=1, ProcessId=process_id)
+            vm = automation.WindowControl(searchDepth=1, ProcessId=process_id, Name="Conexão de Área de Trabalho Remota")
             if vm.Exists(2, 0):
                 if 'Conexão de Área de Trabalho Remota' not in vm.Name:
                     print(f"Janela diferente encontrada, PID possivelmente errado: {process_id}: {vm.Name}")
