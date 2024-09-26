@@ -16,6 +16,7 @@ class ConexaoAreaDeTrabalhoRemota:
 
         try:
             def _abrir_app():
+
                 try:
                     command = ["mstsc"]
                     process = subprocess.Popen(command)
@@ -26,10 +27,11 @@ class ConexaoAreaDeTrabalhoRemota:
                     return None
                 
             def _verificar_se_janela_esta_ativa(pid):
+
                 vm = automation.WindowControl(searchDepth=1, ProcessId=pid, Name="Conexão de Área de Trabalho Remota")
-                if vm.Exists(10.0, 0):
-                    vm.SetActive()
+                if vm.Exists(3.0, 0):
                     vm.SetFocus()
+                    vm.SetActive()
                     print(f"[GerenciadorVM][SUCESSO] Conexão de Área de Trabalho Remota identificada pelo UiAutomation")
                     return vm
                 else:
@@ -37,10 +39,14 @@ class ConexaoAreaDeTrabalhoRemota:
                 return None
             
             def _mostrar_mais_opcoes(vm):
+
+                vm.SetFocus()
+
                 botao_mais_opcoes = vm.ButtonControl(searchDepth=2, Name="Mostrar Opções ")
                 if botao_mais_opcoes.Exists(2.0, 0):
                     botao_mais_opcoes.SetFocus()
                     botao_mais_opcoes.Click()
+                    print(f"[GerenciadorVM] Mais opções foram exibidas na autenticação!")
                 
                 botao_ocultar_opcoes = vm.ButtonControl(searchDepth=2, Name="Ocultar Opções ")
                 if botao_ocultar_opcoes.Exists(2.0, 0):
@@ -52,6 +58,8 @@ class ConexaoAreaDeTrabalhoRemota:
                 sleep(1)
                 vm = _verificar_se_janela_esta_ativa(process_id)
 
+                sleep(1)
+
                 if mais_opcoes and vm is not None:
                     _mostrar_mais_opcoes(vm)
                     
@@ -62,22 +70,36 @@ class ConexaoAreaDeTrabalhoRemota:
             
     def autenticar_na_vm(self, process_id, endereco, nome_usuario, senha, usar_todos_os_monitores = False):
 
-        def _identificar_janela():
+        def _identificar_janela(autenticado = False):
+
             vm = automation.WindowControl(searchDepth=1, ProcessId=process_id, Name="Conexão de Área de Trabalho Remota")
             if vm.Exists(2, 0):
-                if 'Conexão de Área de Trabalho Remota' not in vm.Name:
+                if 'Conexão de Área de Trabalho Remota' not in vm.Name and not autenticado:
                     print(f"Janela diferente encontrada, PID possivelmente errado: {process_id}: {vm.Name}")
-                    return None
-                
+                    return None                
                 vm.SetActive()
                 vm.SetFocus()
                 print(f"VM encontrada para o Process ID {process_id}: {vm.Name}")
                 return vm
+            
+            elif autenticado:
+
+                vm = automation.WindowControl(searchDepth=1, ProcessId=process_id)
+                if vm.Exists(2, 0):
+                    if 'Conexão de Área de Trabalho Remota' not in vm.Name and not autenticado:
+                        print(f"Janela diferente encontrada, PID possivelmente errado: {process_id}: {vm.Name}")
+                        return None 
+                vm.SetActive()
+                vm.SetFocus()
+                print(f"VM encontrada para o Process ID {process_id}: {vm.Name}")
+                return vm
+            
             else:
                 print(f"[ERRO] Janela não encontrada para o PID {process_id}")
                 return None
 
         def _enviar_credenciais(vm):
+
             campo_computador = vm.EditControl(searchDepth=4, ClassName='Edit', Name='Computador:')
             if not campo_computador.Exists(1, 0):
                 print('[ERRO] Campo "Computador" não encontrado!')
@@ -96,6 +118,7 @@ class ConexaoAreaDeTrabalhoRemota:
             campo_nome_de_usuario.SendKeys(nome_usuario)
 
         def _gerenciar_monitores(vm):
+
             janela_exibicao = vm.TabItemControl(searchDepth=3, Name='Exibição')
             if not janela_exibicao.Exists(1, 0):
                 print('[ERRO] Aba "Exibição" não encontrada!')
@@ -122,6 +145,7 @@ class ConexaoAreaDeTrabalhoRemota:
 
 
         def _conectar(vm):
+
             botao_conectar = vm.ButtonControl(searchDepth=1, ClassName='Button', Name='Conectar')
             if not botao_conectar.Exists(1, 0):
                 print('[ERRO] Botão "Conectar" não encontrado!')
@@ -152,9 +176,9 @@ class ConexaoAreaDeTrabalhoRemota:
             _conectar(vm)
             _enviar_senha(vm)
 
-            sleep(5)
+            sleep(2)
             
-            vm = _identificar_janela()
+            vm = _identificar_janela(autenticado = True) # TODO Corrigir erro de logica
             if endereco in vm.Name:
                 print('Máquina virtual aberta com sucesso')
             else:
@@ -182,6 +206,8 @@ class ConexaoAreaDeTrabalhoRemota:
                    nova_area_de_trabalho = managers.manager_internal.create_desktop()
                    virtual_desktop = VirtualDesktop(desktop = nova_area_de_trabalho)
                    print(f'Área de trabalho {quantidade_areas_de_trabalho + 1} criada')
+
+                   sleep(0.5)
 
                    continue
                 
