@@ -155,9 +155,14 @@ class ConexaoAreaDeTrabalhoRemota:
     
         def _enviar_senha(vm):
             janela_seguranca_windows = vm.WindowControl(searchDepth=1, ClassName='Credential Dialog Xaml Host', Name='Segurança do Windows')
-            if not janela_seguranca_windows.Exists(3, 0):
-                print('[ERRO] Janela "Segurança do Windows" não encontrada!')
-                return None
+            if not janela_seguranca_windows.Exists(2, 0):
+                print('[ERRO] Janela "Segurança do Windows" não encontrada dentro do objeto VM!')
+
+                janela_seguranca_windows = automation.WindowControl(searchDepth=1, ClassName='Credential Dialog Xaml Host', Name='Segurança do Windows')
+                if not janela_seguranca_windows.Exists(2, 0):
+                    print('[ERRO] Janela "Segurança do Windows" não encontrada em AUTOMATION!')
+                    return None
+                
             janela_seguranca_windows.SetFocus()
             janela_seguranca_windows.SetActive()
             janela_seguranca_windows.Click()
