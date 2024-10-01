@@ -11,7 +11,7 @@ from .models import Maquinas_Virtuais, Robotizacoes, VMProcesso, VMProcesso
 from .serializers import MaquinasVirtuaisSerializer, RobotizacoesSerializer
 
 from django.http import JsonResponse
-from .services import ConexaoAreaDeTrabalhoRemota
+from .services import ConexaoAreaDeTrabalhoRemota, Utils
 
 @api_view(['GET'])
 def listar_vms(request):
@@ -76,7 +76,7 @@ def listar_robotizacoes_vms(request, id_da_vm):
 def abrir_vm(request, vm_id):
 
     try:
-
+        utils = Utils()
         vm = get_object_or_404(Maquinas_Virtuais, id=vm_id)
         conexao = ConexaoAreaDeTrabalhoRemota()
 
@@ -97,6 +97,15 @@ def abrir_vm(request, vm_id):
                 process_id = process_id,
                 nome_usuario = vm.nome_de_usuario
             )
+
+
+            utils.enviar_mensagem_telegram(
+                f"*VM Aberta*\n\n"
+                f"*VM:* {vm.nome_de_usuario}\n"
+                f"*IP:* {vm.endereco_computador}\n"
+                f"*Área de trabalho:* {vm.area_de_trabalho}\n"
+            )
+
             return JsonResponse({"message": "VM aberta com sucesso", "process_id": process_id})
         else:
             return JsonResponse({"error": "Falha ao abrir a VM"}, status = 500)
@@ -139,6 +148,7 @@ def abrir_todas_as_vms(request):
 
     try:
 
+        utils = Utils()
         vms = Maquinas_Virtuais.objects.all()
         
         resultado_abertura = []
@@ -175,6 +185,12 @@ def abrir_todas_as_vms(request):
                         'status': 'VM aberta com sucesso'
                     }
                 )
+                utils.enviar_mensagem_telegram(
+                    f"*VM Aberta*\n\n"
+                    f"*VM:* {vm.nome_de_usuario}\n"
+                    f"*IP:* {vm.endereco_computador}\n"
+                    f"*Área de trabalho:* {vm.area_de_trabalho}\n"
+                )
 
             else:
                 resultado_abertura.append(
@@ -184,11 +200,20 @@ def abrir_todas_as_vms(request):
                         'status': 'Erro ao abrir a VM'
                     }
                 )
+                utils.enviar_mensagem_telegram(
+                    f'''
+                    Erro na abertura de uma VM\n\n
+                    
+                    [PROCESSO ID]: None\n
+
+                    Usuário: {vm.nome_de_usuario}\n
+                    Endereço: {vm.endereco_computador}\n
+                    Área de trabalho: {vm.area_de_trabalho}\n
+                    '''
+                )
 
         return JsonResponse({"resultado": resultado_abertura})
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
-if __name__ == '__main__':
-    pass

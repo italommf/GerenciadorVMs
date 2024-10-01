@@ -1,12 +1,12 @@
-import os
+import requests
 import pythoncom
 import subprocess
 from time import sleep
-from pathlib import Path
-import uiautomation as automation
-
 from pyvda.utils import Managers
-from pyvda import AppView, get_apps_by_z_order, VirtualDesktop, get_virtual_desktops
+import uiautomation as automation
+from pyvda import VirtualDesktop, get_virtual_desktops
+
+from settings_decouple import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID 
 
 class ConexaoAreaDeTrabalhoRemota:
 
@@ -223,18 +223,29 @@ class ConexaoAreaDeTrabalhoRemota:
         _ciar_area_de_trabalho(area_de_trabalho)
         _ir_para_area_de_trabalho(area_de_trabalho)
 
+class Utils:
+
+    def __init__(self) -> None:
+
+        self.token = TELEGRAM_TOKEN
+        self.chat_id = TELEGRAM_CHAT_ID
+
+    def enviar_mensagem_telegram(self, message):
+
+        try:
+
+            data = {
+                "chat_id": self.chat_id, 
+                "text": message
+            }
+            url = f"https://api.telegram.org/bot{self.token}/sendMessage"
+            requests.post(url, data)
+
+        except Exception as e:
+
+            print("[TELEGRAM][ERRO] Erro ao enviar a mensagem:", e)
+
 if __name__ == '__main__':
 
     conexao = ConexaoAreaDeTrabalhoRemota()
-
-    # pid = conexao.abrir_janela_conexao_remota()
-
-#     conexao.autenticar_na_vm(
-#         pid,
-#         '192.168.1.38',
-#         r'contauditoria\devrobot.consultaopt',
-#         r'DBeWxrni8Ux6gnRjKY6k',
-#         usar_todos_os_monitores = False
-#     )
-
     conexao.gerenciar_area_de_trabalho(2)
