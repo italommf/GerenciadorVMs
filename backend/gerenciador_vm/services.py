@@ -159,6 +159,7 @@ class ConexaoAreaDeTrabalhoRemota:
                 print('[ERRO] Janela "Segurança do Windows" não encontrada!')
                 return None
             janela_seguranca_windows.SetFocus()
+            janela_seguranca_windows.SetActive()
             janela_seguranca_windows.Click()
             janela_seguranca_windows.SendKeys(senha, interval=0.05)
 
