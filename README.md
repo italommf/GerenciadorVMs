@@ -11,7 +11,7 @@ fácil visualização e controle sobre o que está aberto ou não.
     - caso tenha o arquivo do banco de dados ja pronto, cole na pasta *backend*, pasta esta que abriga o arquivo *manage.py*.
     - o projeto necessita de um .env na pasta *backend* com as seguintes chaves:
     
-      TELEGRAM_TOKEN = Sua chave de api aqui. 
+      TELEGRAM_TOKEN = Sua chave de api aqui.  
       TELEGRAM_CHAT_ID = Seu chat id aqui.
 
 2. Crie o banco de dados e o super usuário.
