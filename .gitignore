@@ -13,3 +13,5 @@ db.sqlite3
 @AutomationLog.txt
 
 add_bot_telegram.py
+
+CadastrarVMs.py
