@@ -4,7 +4,13 @@ import subprocess
 from time import sleep
 from pyvda.utils import Managers
 import uiautomation as automation
+from django.db.models import Count
+from .models import Maquinas_Virtuais
 from pyvda import VirtualDesktop, get_virtual_desktops
+
+import win32api
+import win32gui
+import win32con
 
 from settings_decouple import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID 
 
@@ -229,6 +235,42 @@ class ConexaoAreaDeTrabalhoRemota:
         _ciar_area_de_trabalho(area_de_trabalho)
         _ir_para_area_de_trabalho(area_de_trabalho)
 
+    def gerenciar_janelas(self, pid, total_de_vms, numero_do_app):
+
+        window = automation.WindowControl(searchDepth=1, ProcessId=pid)
+        
+        if window.Exists(0, 0):
+            hwnd = window.NativeWindowHandle
+            print(f"Janela encontrada: PID {pid}, HWND {hwnd}")
+            
+            screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
+            screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
+
+            if total_de_vms == 1:
+                win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, screen_width, screen_height, 0)
+
+            elif total_de_vms == 2:
+                # Dois aplicativos, divididos ao meio (um à esquerda e um à direita)
+                win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, screen_width // 2, screen_height, 0)
+                # Exemplo para a segunda janela, que ocuparia a outra metade
+                # win32gui.SetWindowPos(hwnd_2, win32con.HWND_TOP, screen_width // 2, 0, screen_width // 2, screen_height, 0)
+            elif total_de_vms == 3:
+                # Três aplicativos, divididos em três colunas (esquerda, meio, direita)
+                win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, screen_width // 3, screen_height, 0)
+                # Similar para outras duas janelas
+            elif total_de_vms == 4:
+                # Quatro aplicativos, divididos em quadrantes (dois em cima, dois embaixo)
+                win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, screen_width // 2, screen_height // 2, 0)
+                # Outras três janelas para completar a disposição em quadrantes
+        else:
+            print(f"Janela com PID {pid} não encontrada.")
+
+    def contar_vms_por_area_de_trabalho(request):
+
+        vms_por_area = Maquinas_Virtuais.objects.values('area_de_trabalho').annotate(total=Count('id')).order_by('area_de_trabalho')
+        resultado = {item['area_de_trabalho']: item['total'] for item in vms_por_area}
+        return {"vms_por_area": resultado}   
+    
 class Utils:
 
     def __init__(self) -> None:
@@ -254,4 +296,6 @@ class Utils:
 if __name__ == '__main__':
 
     conexao = ConexaoAreaDeTrabalhoRemota()
-    conexao.gerenciar_area_de_trabalho(2)
+    # conexao.gerenciar_area_de_trabalho(2)
+
+

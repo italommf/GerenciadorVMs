@@ -11,6 +11,10 @@ class Maquinas_Virtuais(models.Model):
         max_length = 255, 
         null = False
     )
+
+    favoritada = models.BooleanField(
+        default = False
+    )
     
     senha = models.CharField(
         max_length = 255, 

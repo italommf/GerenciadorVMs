@@ -9,7 +9,8 @@ from .views import (
     listar_robotizacoes_vms, 
     abrir_vm,
     listar_vms_abertas,
-    abrir_todas_as_vms
+    abrir_todas_as_vms,
+    abrir_vms_favoritadas
 )
 
 urlpatterns = [
@@ -20,6 +21,7 @@ urlpatterns = [
     path('listar_robotizacoes_vms/<int:id_da_vm>/', listar_robotizacoes_vms, name = 'Listar Todas as Robotizações de Uma VM'),
     path('abrir_vm/<int:vm_id>/', abrir_vm, name = 'Abrir uma Máquina Virtual'),
     path('listar_vms_abertas/', listar_vms_abertas, name = 'Listar Máquinas Virtuais Abertas'),
-    path('abrir_todas_as_vms/', abrir_todas_as_vms, name = ' Abrir Todas as Máquinas Virtuais')
+    path('abrir_todas_as_vms/', abrir_todas_as_vms, name = ' Abrir Todas as Máquinas Virtuais'),
+    path('abrir_vms_favoritadas/', abrir_vms_favoritadas, name = ' Abrir Todas as Máquinas Virtuais Favoritadas')
 ]
 

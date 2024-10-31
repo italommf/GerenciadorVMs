@@ -80,7 +80,7 @@ def abrir_vm(request, vm_id):
         vm = get_object_or_404(Maquinas_Virtuais, id=vm_id)
         conexao = ConexaoAreaDeTrabalhoRemota()
 
-        conexao.gerenciar_area_de_trabalho(vm.area_de_trabalho)
+        # conexao.gerenciar_area_de_trabalho(vm.area_de_trabalho)
 
         process_id = conexao.abrir_janela_conexao_remota(mais_opcoes=True)
         if process_id is not None:            
@@ -98,6 +98,7 @@ def abrir_vm(request, vm_id):
                 nome_usuario = vm.nome_de_usuario
             )
 
+            # conexao.gerenciar_janelas(process_id, 1)
 
             utils.enviar_mensagem_telegram(
                 f"*VM Aberta*\n\n"
@@ -217,3 +218,78 @@ def abrir_todas_as_vms(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
+@api_view(['GET'])
+def abrir_vms_favoritadas(request):
+
+    try:
+
+        utils = Utils()
+        vms = Maquinas_Virtuais.objects.filter(
+            favoritada = True
+        )
+
+        resultado_abertura = []
+
+        conexao = ConexaoAreaDeTrabalhoRemota()
+
+        for vm in vms:
+
+            conexao.gerenciar_area_de_trabalho(vm.area_de_trabalho)
+            process_id = conexao.abrir_janela_conexao_remota(mais_opcoes=True)
+
+            if process_id is not None:
+                conexao.autenticar_na_vm(
+                    process_id=process_id,
+                    endereco=vm.endereco_computador,
+                    nome_usuario=vm.nome_de_usuario,
+                    senha=vm.senha,
+                    usar_todos_os_monitores=vm.usar_todos_os_monitores
+                )
+
+                sleep(1)
+
+                VMProcesso.objects.create(
+                    maquina_virtual = vm, 
+                    process_id = process_id,
+                    nome_usuario = vm.nome_de_usuario
+                )
+
+                resultado_abertura.append(
+                    {
+                        'vm_id': vm.id,
+                        'nome_usuario': vm.nome_de_usuario,
+                        'process_id': process_id,
+                        'status': 'VM favorita aberta com sucesso'
+                    }
+                )
+                utils.enviar_mensagem_telegram(
+                    f"*VM favorita Aberta*\n\n"
+                    f"*VM:* {vm.nome_de_usuario}\n"
+                    f"*IP:* {vm.endereco_computador}\n"
+                    f"*Área de trabalho:* {vm.area_de_trabalho}\n"
+                )
+
+            else:
+                resultado_abertura.append(
+                    {
+                        'vm_id': vm.id,
+                        'nome_usuario': vm.nome_de_usuario,
+                        'status': 'Erro ao abrir a VM favoritada'
+                    }
+                )
+                utils.enviar_mensagem_telegram(
+                    f'''
+                    Erro na abertura de uma VM favoritada\n\n
+                    
+                    [PROCESSO ID]: None\n
+
+                    Usuário: {vm.nome_de_usuario}\n
+                    Endereço: {vm.endereco_computador}\n
+                    Área de trabalho: {vm.area_de_trabalho}\n
+                    '''
+                )
+
+        return JsonResponse({"resultado": resultado_abertura})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
