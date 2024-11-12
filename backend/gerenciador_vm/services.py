@@ -149,7 +149,6 @@ class ConexaoAreaDeTrabalhoRemota:
                     checkbox_usar_todos_os_monitores.Click()
                     print('[SUCESSO] O Checkbox foi desmarcado. Não usará todos os monitores!')
 
-
         def _conectar(vm):
 
             botao_conectar = vm.ButtonControl(searchDepth=1, ClassName='Button', Name='Conectar')
@@ -158,6 +157,8 @@ class ConexaoAreaDeTrabalhoRemota:
                 return None
             botao_conectar.SetFocus()
             botao_conectar.Click()
+
+            sleep(0.5)
     
         def _enviar_senha(vm):
             janela_seguranca_windows = vm.WindowControl(searchDepth=1, ClassName='Credential Dialog Xaml Host', Name='Segurança do Windows')
@@ -179,6 +180,7 @@ class ConexaoAreaDeTrabalhoRemota:
                 print('[ERRO] Botão "Ok" não encontrado!')
                 return None
             botao_ok.SetFocus()
+            botao_ok.MoveCursorToInnerPos()
             botao_ok.Click()
 
         vm = _identificar_janela()
@@ -198,7 +200,7 @@ class ConexaoAreaDeTrabalhoRemota:
         else:
             print("[ERRO] Falha ao identificar a janela da VM durante o processo de autenticação.")
 
-    def gerenciar_area_de_trabalho(self, area_de_trabalho):
+    def gerenciar_area_de_trabalho(self, vm):
 
         def _verificar_numero_de_desktops():
 
@@ -229,11 +231,12 @@ class ConexaoAreaDeTrabalhoRemota:
 
             areas_de_trabalho_ativas = get_virtual_desktops()
             desktop_destino = areas_de_trabalho_ativas[area_de_trabalho - 1]
+            desktop_destino.rename(vm.nome_de_usuario)
             desktop_destino.go()
             print(f'Área de trabalho {area_de_trabalho - 1} aberta!')
 
-        _ciar_area_de_trabalho(area_de_trabalho)
-        _ir_para_area_de_trabalho(area_de_trabalho)
+        _ciar_area_de_trabalho(vm.area_de_trabalho)
+        _ir_para_area_de_trabalho(vm.area_de_trabalho)
 
     def gerenciar_janelas(self, pid, total_de_vms, numero_do_app):
 

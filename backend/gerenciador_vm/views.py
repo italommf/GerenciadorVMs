@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .models import Maquinas_Virtuais, Robotizacoes, VMProcesso, VMProcesso
-from .serializers import MaquinasVirtuaisSerializer, RobotizacoesSerializer
+from .models import Maquinas_Virtuais, VMProcesso, VMProcesso
+from .serializers import MaquinasVirtuaisSerializer
 
 from django.http import JsonResponse
 from .services import ConexaoAreaDeTrabalhoRemota, Utils
@@ -38,40 +38,6 @@ def adicionar_vm(request):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def adicionar_rpa(request):
-
-    if request.method == 'POST':
-        serializer = RobotizacoesSerializer(data = request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-def listar_todas_as_robotizacoes(request):
-
-    robotizacoes = Robotizacoes.objects.all()    
-    serializer = RobotizacoesSerializer(robotizacoes, many = True)
-    
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def listar_robotizacoes_vms(request, id_da_vm):
-
-    try:
-        vm = Maquinas_Virtuais.objects.get(id = id_da_vm)
-    except Maquinas_Virtuais.DoesNotExist:
-        return Response({'[ERRO]": "VM não encontrada.'}, status=status.HTTP_404_NOT_FOUND)
-    
-    rpas = Robotizacoes.objects.filter(maquina_virtual = vm)
-    serializer = RobotizacoesSerializer(rpas, many=True)
-
-    return Response(serializer.data)
-
 @api_view(['GET'])
 def abrir_vm(request, vm_id):
 
@@ -80,7 +46,7 @@ def abrir_vm(request, vm_id):
         vm = get_object_or_404(Maquinas_Virtuais, id=vm_id)
         conexao = ConexaoAreaDeTrabalhoRemota()
 
-        # conexao.gerenciar_area_de_trabalho(vm.area_de_trabalho)
+        # conexao.gerenciar_area_de_trabalho(vm)
 
         process_id = conexao.abrir_janela_conexao_remota(mais_opcoes=True)
         if process_id is not None:            
@@ -158,7 +124,7 @@ def abrir_todas_as_vms(request):
 
         for vm in vms:
 
-            conexao.gerenciar_area_de_trabalho(vm.area_de_trabalho)
+            conexao.gerenciar_area_de_trabalho(vm)
             process_id = conexao.abrir_janela_conexao_remota(mais_opcoes=True)
 
             if process_id is not None:
@@ -234,7 +200,7 @@ def abrir_vms_favoritadas(request):
 
         for vm in vms:
 
-            conexao.gerenciar_area_de_trabalho(vm.area_de_trabalho)
+            conexao.gerenciar_area_de_trabalho(vm)
             process_id = conexao.abrir_janela_conexao_remota(mais_opcoes=True)
 
             if process_id is not None:

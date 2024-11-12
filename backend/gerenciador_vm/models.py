@@ -46,38 +46,6 @@ class Maquinas_Virtuais(models.Model):
 
         verbose_name = 'Máquina Virtual' 
         verbose_name_plural = 'Máquinas Virtuais' 
-        
-    
-class Robotizacoes(models.Model):
-        
-    nome_do_robo = models.CharField(
-        max_length = 255, 
-        null = False
-    )
-
-    unidade = models.CharField(
-        max_length = 255, 
-        null = False
-    )
-
-    agendador = models.BooleanField(
-        default = False
-    )
-
-    maquina_virtual = models.ForeignKey(
-        Maquinas_Virtuais, 
-        related_name = 'robos', 
-        on_delete = models.CASCADE
-    ) 
-
-    def __str__(self):
-        return f'{self.nome_do_robo} - Área de Trabalho {self.area_de_trabalho}'
-
-    class Meta:
-
-        verbose_name = 'Robotização'
-        verbose_name_plural = 'Robotizações'
-
 
 class VMProcesso(models.Model):
 
@@ -100,3 +68,4 @@ class VMProcesso(models.Model):
 
     def __str__(self):
         return f'Processo {self.process_id} da VM {self.maquina_virtual} (Usuário: {self.nome_usuario})'
+    
