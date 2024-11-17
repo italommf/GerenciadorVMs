@@ -69,18 +69,10 @@ http://localhost:8000/api/  - Hub com todos as funções atuais deste projeto.
         'area_de_trabalho': Int - Dado obrigatório - Default = 1
       }
       ```
-  - api/adicionar_rpa/
-    - Ainda sem funcionalidade  
-      
+
   - api/listar_vms_cadastradas/
     - Retorna um json mostrando todas as Máquinas Virtuais cadastradas no sistema
       
-  - api/listar_todas_as_robotizacoes/
-    - Ainda sem funcionalidade
-      
-  - api/listar_robotizacoes_vms/<int:id_da_vm>/
-     - Retorna a lista de todas as Robotizações cadastradas nas Máquinas Virtuais - Ainda sem funcionalidade
-       
   - api/abrir_vm/<int:vm_id>/
     - Retorna a abertura da máquina virtual correspondente ao ID informado em ```<int:vm_id>```, ao final da abertura, um json com as informações da abertura é exibido no navegador. 
        
