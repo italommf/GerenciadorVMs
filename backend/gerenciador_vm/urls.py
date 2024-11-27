@@ -15,6 +15,6 @@ urlpatterns = [
     path('abrir_vm/<int:vm_id>/', abrir_vm, name = 'Abrir uma Máquina Virtual'),
     path('listar_vms_abertas/', listar_vms_abertas, name = 'Listar Máquinas Virtuais Abertas'),
     path('abrir_todas_as_vms/', abrir_todas_as_vms, name = ' Abrir Todas as Máquinas Virtuais'),
-    path('abrir_vms_favoritadas/', abrir_vms_favoritadas, name = ' Abrir Todas as Máquinas Virtuais Favoritadas')
+    path('abrir_vms_favoritadas/', abrir_vms_favoritadas, name = 'Abrir Todas as Máquinas Virtuais Favoritadas')
 ]
 

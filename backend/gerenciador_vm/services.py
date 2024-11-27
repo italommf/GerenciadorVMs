@@ -274,6 +274,40 @@ class ConexaoAreaDeTrabalhoRemota:
         resultado = {item['area_de_trabalho']: item['total'] for item in vms_por_area}
         return {"vms_por_area": resultado}   
     
+    def abrir_vm_via_mstsc(self, host, usuario, senha, usar_todos_os_monitores, largura=1280, altura=720):
+        
+        try:
+
+            remover_comando = ['cmdkey', f'/delete:{host}']
+            subprocess.run(remover_comando, capture_output=True)
+
+            comando_credenciais = ['cmdkey', f'/generic:{host}', f'/user:{usuario}', f'/pass:{senha}']
+            result = subprocess.run(comando_credenciais, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                print(f"Credenciais adicionadas para {host}.")
+            else:
+                raise RuntimeError(f"Erro ao adicionar credenciais: {result.stderr}")
+
+            if usar_todos_os_monitores:
+                comando = ['mstsc', f'/v:{host}', '/multimon']
+            else:
+                comando = ['mstsc', f'/v:{host}', f'/w:{largura}', f'/h:{altura}']
+
+            processo = subprocess.Popen(comando)
+            process_id = processo.pid
+
+            print(f"Conexão iniciada para {host} com PID: {process_id}")
+            return process_id
+
+        except subprocess.CalledProcessError as e:
+            print(f"Erro ao executar comando: {e}")
+            raise
+
+        except Exception as e:
+            print(f"Erro inesperado: {e}")
+            raise
+        
 class Utils:
 
     def __init__(self) -> None:
