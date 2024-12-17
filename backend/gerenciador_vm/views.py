@@ -87,7 +87,11 @@ def abrir_vm(request, vm_id):
         endereco = vm.endereco_computador,  
         nome_usuario = vm.nome_de_usuario,   
         senha_vm = vm.senha,                  
-        usar_todos_os_monitores = vm.usar_todos_os_monitores  
+        usar_todos_os_monitores = vm.usar_todos_os_monitores
+
+        resolucao = vm.resolucao
+        largura = resolucao.split('x')[0]
+        altura = resolucao.split('x')[1]
 
         host = endereco[0]
         usuario = nome_usuario[0]
@@ -97,7 +101,9 @@ def abrir_vm(request, vm_id):
             host,
             usuario,
             senha,
-            usar_todos_os_monitores
+            usar_todos_os_monitores,
+            largura,
+            altura            
         )
 
         if process_id is not None:
@@ -310,7 +316,7 @@ def abrir_vms_favoritadas(request):
             #         f"*Área de trabalho:* {vm.area_de_trabalho}\n"
             #    )
 
-            # conexao.gerenciar_area_de_trabalho(vm)
+            conexao.gerenciar_area_de_trabalho(vm)
 
             endereco = vm.endereco_computador,  
             nome_usuario = vm.nome_de_usuario,   

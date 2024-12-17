@@ -8,6 +8,8 @@ class Maquinas_VirtuaisAdmin(admin.ModelAdmin):
     list_editable = ('favoritada', 'usar_todos_os_monitores', 'area_de_trabalho')
     list_display_links = ('nome_de_usuario',)
 
+    search_fields = ['nome_de_usuario'] 
+
     def abrir_vm(self, obj):
         return format_html(
             '<a class="button" href="{}" target="_blank">Abrir VM</a>',
